@@ -10,11 +10,9 @@
 
 (define remove-first-n-values
   (lambda (lst n)
-    (let loop ([lst lst]
-               [i n])
-      (cond
-        [(= i 0) lst]
-        [else (loop (cdr lst) (- i 1))]))))
+    (cond
+      [(= n 0) lst]
+      [else (remove-first-n-values (cdr lst) (- n 1))])))
 
 (define max-joltage-and-index-of-nth-digit
   (lambda (lst n)
