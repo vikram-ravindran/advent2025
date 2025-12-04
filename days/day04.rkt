@@ -31,74 +31,31 @@
   (lambda (2dvec row col)
     (let ([nrows (2d-vector-nrows 2dvec)]
           [ncols (2d-vector-ncols 2dvec)])
-      (cond
-        [(and (= row 0) (= col 0))
-         (apply +
-                (map roll-count
-                     `(,(get-2d-vector-element 2dvec 0 1) ,(get-2d-vector-element 2dvec 1 0)
-                                                          ,(get-2d-vector-element 2dvec 1 1))))]
-        [(and (= row (- nrows 1)) (= col (- ncols 1)))
-         (apply +
-                (map roll-count
-                     `(,(get-2d-vector-element 2dvec (- nrows 1) (- ncols 2))
-                       ,(get-2d-vector-element 2dvec (- nrows 2) (- ncols 1))
-                       ,(get-2d-vector-element 2dvec (- nrows 2) (- ncols 2)))))]
-        [(and (= row (- nrows 1)) (= col 0))
-         (apply +
-                (map roll-count
-                     `(,(get-2d-vector-element 2dvec row (+ col 1))
-                       ,(get-2d-vector-element 2dvec (- row 1) (+ col 0))
-                       ,(get-2d-vector-element 2dvec (- row 1) (+ col 1)))))]
-        [(= row (- nrows 1))
-         (apply +
-                (map roll-count
-                     `(,(get-2d-vector-element 2dvec row (- col 1))
-                       ,(get-2d-vector-element 2dvec row (+ col 1))
-                       ,(get-2d-vector-element 2dvec (- row 1) (- col 1))
-                       ,(get-2d-vector-element 2dvec (- row 1) (+ col 0))
-                       ,(get-2d-vector-element 2dvec (- row 1) (+ col 1)))))]
-        [(and (= col (- ncols 1)) (= row 0))
-         (apply +
-                (map roll-count
-                     `(,(get-2d-vector-element 2dvec (+ row 1) col)
-                       ,(get-2d-vector-element 2dvec (+ row 0) (- col 1))
-                       ,(get-2d-vector-element 2dvec (+ row 1) (- col 1)))))]
-        [(= col (- ncols 1))
-         (apply +
-                (map roll-count
-                     `(,(get-2d-vector-element 2dvec (- row 1) col)
-                       ,(get-2d-vector-element 2dvec (+ row 1) col)
-                       ,(get-2d-vector-element 2dvec (- row 1) (- col 1))
-                       ,(get-2d-vector-element 2dvec (+ row 0) (- col 1))
-                       ,(get-2d-vector-element 2dvec (+ row 1) (- col 1)))))]
-        [(= row 0)
-         (apply +
-                (map roll-count
-                     `(,(get-2d-vector-element 2dvec 0 (- col 1))
-                       ,(get-2d-vector-element 2dvec 0 (+ col 1))
-                       ,(get-2d-vector-element 2dvec 1 (- col 1))
-                       ,(get-2d-vector-element 2dvec 1 (+ col 0))
-                       ,(get-2d-vector-element 2dvec 1 (+ col 1)))))]
-        [(= col 0)
-         (apply +
-                (map roll-count
-                     `(,(get-2d-vector-element 2dvec (- row 1) 0)
-                       ,(get-2d-vector-element 2dvec (+ row 1) 0)
-                       ,(get-2d-vector-element 2dvec (- row 1) 1)
-                       ,(get-2d-vector-element 2dvec (+ row 0) 1)
-                       ,(get-2d-vector-element 2dvec (+ row 1) 1))))]
-
-        [else
-         (apply +
-                (map roll-count
-                     `(,(get-2d-vector-element 2dvec row (- col 1))
-                       ,(get-2d-vector-element 2dvec row (+ col 1))
-                       ,(get-2d-vector-element 2dvec (- row 1) (- col 1))
-                       ,(get-2d-vector-element 2dvec (- row 1) (+ col 0))
-                       ,(get-2d-vector-element 2dvec (- row 1) (+ col 1))
-                       ,(get-2d-vector-element 2dvec (+ row 1) (- col 1))
-                       ,(get-2d-vector-element 2dvec (+ row 1) (+ col 0))
-                       ,(get-2d-vector-element 2dvec (+ row 1) (+ col 1)))))]))))
+      (+ (if (not (or (= row 0) (= col 0)))
+             (roll-count (get-2d-vector-element 2dvec (- row 1) (- col 1)))
+             0) ; NW
+         (if (not (= row 0))
+             (roll-count (get-2d-vector-element 2dvec (- row 1) col))
+             0) ; N
+         (if (not (or (= row 0) (= col (- ncols 1))))
+             (roll-count (get-2d-vector-element 2dvec (- row 1) (+ col 1)))
+             0) ; N
+         (if (not (= col 0))
+             (roll-count (get-2d-vector-element 2dvec row (- col 1)))
+             0) ; W
+         (if (not (= col (- ncols 1)))
+             (roll-count (get-2d-vector-element 2dvec row (+ col 1)))
+             0) ; E
+         (if (not (or (= row (- nrows 1)) (= col 0)))
+             (roll-count (get-2d-vector-element 2dvec (+ row 1) (- col 1)))
+             0) ; SW
+         (if (not (= row (- nrows 1)))
+             (roll-count (get-2d-vector-element 2dvec (+ row 1) col))
+             0) ; S
+         (if (not (or (= row (- nrows 1)) (= col (- ncols 1))))
+             (roll-count (get-2d-vector-element 2dvec (+ row 1) (+ col 1)))
+             0) ; SE
+         ))))
 
 (define process-file
   (lambda (filename)
