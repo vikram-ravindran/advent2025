@@ -22,12 +22,6 @@
 (define process-file
   (lambda (filename) (convert-filelines-to-intervals-and-ids (file->lines filename))))
 
-(define get-fresh-ids-from-interval
-  (lambda (interval) (range (first interval) (+ (second interval) 1))))
-
-(define get-fresh-ids-from-interval-list
-  (lambda (intervals) (apply append (map get-fresh-ids-from-interval intervals))))
-
 (define combine-intervals-into-smallest-set
   (lambda (intervals)
     (let ([sorted-intervals (sort intervals (lambda (x y) (< (car x) (car y))))])
