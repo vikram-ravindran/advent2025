@@ -60,11 +60,11 @@
 (define process-file
   (lambda (filename)
     (let ([filelines (map string->list (file->lines filename))])
-      (make-2d-vector-from-vector
-       (length filelines)
-       (length (car filelines))
-       (for/fold ([totalvector (vector)]) ([currentline filelines])
-         (values (vector-append totalvector (list->vector (map string currentline)))))))))
+      (make-2d-vector-from-vector (length filelines)
+                                  (length (car filelines))
+                                  (for/fold ([totalvector (vector)]) ([currentline filelines])
+                                    (vector-append totalvector
+                                                   (list->vector (map string currentline))))))))
 
 (define number-of-rolls-with-fewer-than-n-surrounding
   (lambda (2dvec n)

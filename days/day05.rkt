@@ -30,12 +30,12 @@
                                      '()
                                      (first combined-intervals))])
           (cond
-            [(empty? previous-interval) (values (list current-interval))]
+            [(empty? previous-interval) (list current-interval)]
             [(<= (first current-interval) (second previous-interval))
-             (values (cons (list (first previous-interval)
-                                 (max (second current-interval) (second previous-interval)))
-                           (rest combined-intervals)))]
-            [else (values (cons current-interval combined-intervals))]))))))
+             (cons (list (first previous-interval)
+                         (max (second current-interval) (second previous-interval)))
+                   (rest combined-intervals))]
+            [else (cons current-interval combined-intervals)]))))))
 
 (define count-ids-spanned-by-intervals
   (lambda (intervals)

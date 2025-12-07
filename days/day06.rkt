@@ -63,7 +63,7 @@
           [initial-totals (second lines)]
           [remaining-number-lines (cddr lines)])
       (for/fold ([totals initial-totals]) ([number-line remaining-number-lines])
-        (values (map (lambda (exp) (eval exp ns)) (map list operators totals number-line)))))))
+        (map (lambda (exp) (eval exp ns)) (map list operators totals number-line))))))
 
 (define compute-column-totals-part2
   (lambda (columns)
