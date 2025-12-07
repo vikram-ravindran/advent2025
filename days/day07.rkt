@@ -43,23 +43,27 @@
       total-splits)))
 
 (define count-number-of-tachyon-worlds
-  (let ([memoization-hash (make-hash)])
-    (lambda (tachyon-column lines)
-      (cond
-        [(empty? lines) 1]
-        [(hash-has-key? memoization-hash (list tachyon-column (car lines)))
-         (hash-ref memoization-hash (list tachyon-column (car lines)))]
-        [else
-         (let* ([current-line (car lines)]
-                [splitter-columns (find-all-instances-of-char-in-string current-line #\^)])
-           (cond
-             [(member tachyon-column splitter-columns)
-              (let ([number-of-worlds
-                     (+ (count-number-of-tachyon-worlds (- tachyon-column 1) (cdr lines))
-                        (count-number-of-tachyon-worlds (+ tachyon-column 1) (cdr lines)))])
-                (hash-set! memoization-hash (list tachyon-column (car lines)) number-of-worlds)
-                number-of-worlds)]
-             [else (count-number-of-tachyon-worlds tachyon-column (cdr lines))]))]))))
+  (lambda (tachyon-column lines)
+    (define count-number-of-tachyon-worlds-helper
+      (let ([memoization-hash (make-hash)])
+        (lambda (tachyon-column lines)
+          (cond
+            [(empty? lines) 1]
+            [(hash-has-key? memoization-hash (list tachyon-column (car lines)))
+             (hash-ref memoization-hash (list tachyon-column (car lines)))]
+            [else
+             (let* ([current-line (car lines)]
+                    [splitter-columns (find-all-instances-of-char-in-string current-line #\^)])
+               (cond
+                 [(member tachyon-column splitter-columns)
+                  (let ([number-of-worlds
+                         (+ (count-number-of-tachyon-worlds-helper (- tachyon-column 1) (cdr lines))
+                            (count-number-of-tachyon-worlds-helper (+ tachyon-column 1)
+                                                                   (cdr lines)))])
+                    (hash-set! memoization-hash (list tachyon-column (car lines)) number-of-worlds)
+                    number-of-worlds)]
+                 [else (count-number-of-tachyon-worlds-helper tachyon-column (cdr lines))]))]))))
+    (count-number-of-tachyon-worlds-helper tachyon-column lines)))
 
 (define count-total-number-of-tachyon-worlds
   (lambda (lines)
