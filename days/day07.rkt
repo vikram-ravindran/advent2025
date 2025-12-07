@@ -10,10 +10,9 @@
     (reverse (for/fold ([indices '()])
                        ([current-char (string->list str)]
                         [i (in-naturals)])
-               (if (equal? current-char char-to-find)
-                   (values (cons i indices))
-                   ;else:
-                   (values indices))))))
+               (cond
+                 [(equal? current-char char-to-find) (cons i indices)]
+                 [else indices])))))
 
 (define split-tachyon-beams
   (lambda (tachyon-columns splitter-columns)
@@ -24,10 +23,10 @@
         [(member tachyon-column splitter-columns)
          (values (+ number-of-splits 1)
                  (remove-duplicates (append new-tachyon-columns
-                                            `(,(- tachyon-column 1) ,(+ tachyon-column 1)))))]
+                                            (list (- tachyon-column 1) (+ tachyon-column 1)))))]
         [else
          (values number-of-splits
-                 (remove-duplicates (append new-tachyon-columns `(,tachyon-column))))]))))
+                 (remove-duplicates (append new-tachyon-columns (list tachyon-column))))]))))
 
 (define count-total-number-of-tachyon-splits
   (lambda (lines)
@@ -52,8 +51,7 @@
             [(hash-has-key? memoization-hash (list tachyon-column (car lines)))
              (hash-ref memoization-hash (list tachyon-column (car lines)))]
             [else
-             (let* ([current-line (car lines)]
-                    [splitter-columns (find-all-instances-of-char-in-string current-line #\^)])
+             (let ([splitter-columns (find-all-instances-of-char-in-string (car lines) #\^)])
                (cond
                  [(member tachyon-column splitter-columns)
                   (let ([number-of-worlds
