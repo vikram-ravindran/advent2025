@@ -39,7 +39,7 @@
              0) ; N
          (if (not (or (= row 0) (= col (- ncols 1))))
              (roll-count (get-2d-vector-element 2dvec (- row 1) (+ col 1)))
-             0) ; N
+             0) ; NE
          (if (not (= col 0))
              (roll-count (get-2d-vector-element 2dvec row (- col 1)))
              0) ; W
