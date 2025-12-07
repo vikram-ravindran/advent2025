@@ -8,13 +8,6 @@
     (map (lambda (x) (map string->number (string-split x "-")))
          (string-split (car (file->lines filename)) ","))))
 
-(define flatten
-  (lambda (lst)
-    (cond
-      [(empty? lst) '()]
-      [(list? (car lst)) (append (flatten (car lst)) (flatten (cdr lst)))]
-      [else (cons (car lst) (flatten (cdr lst)))])))
-
 (define invalid-doubled-id?
   (lambda (id)
     (let* ([string-id (number->string id)]
