@@ -4,6 +4,7 @@
          part2)
 
 (require racket/set)
+(require glpk)
 
 (struct machine (diagram schematics joltages) #:transparent)
 
@@ -79,6 +80,7 @@
           [(equal? diagram (combine-schematics-list press-combo)) k]
           [else #f])))))
 
+; This is way too slow! Use integer solver instead (see below)
 (define find-minimum-presses-for-joltage
   (lambda (m)
     (let ([joltage (machine-joltages m)]
@@ -89,6 +91,47 @@
           [(equal? joltage (combine-joltages-list press-combo)) k]
           [else #f])))))
 
+(define assemble-objective-function-from-schematics-list
+  (lambda (schematics-list)
+    (cons 0
+          (for/list ([i (range 0 (length schematics-list))])
+            (list 1 (string->symbol (format "j~a" i)))))))
+
+(define assemble-equations-from-schematics-and-joltage-list
+  (lambda (schematics-list joltage-list)
+    (for/list ([j (range 0 (length joltage-list))])
+      (cons (string->symbol (format "r~a" j))
+            (filter (lambda (x) (not (empty? x)))
+                    (for/list ([schematic schematics-list]
+                               [r (range 0 (length schematics-list))])
+                      (cond
+                        [(member j schematic) (list 1 (string->symbol (format "j~a" r)))]
+                        [else '()])))))))
+
+(define assemble-constraints-from-schematics-and-joltage-list
+  (lambda (schematics-list joltage-list)
+    (append (for/list ([joltage joltage-list]
+                       [j (range 0 (length joltage-list))])
+              (list (string->symbol (format "r~a" j)) joltage joltage))
+            (for/list ([s (range 0 (length schematics-list))])
+              (list (string->symbol (format "j~a" s)) 0 'posinf)))))
+
+(define assemble-integer-list-from-schematics-list
+  (lambda (schematics-list)
+    (for/list ([s (range 0 (length schematics-list))])
+      (string->symbol (format "j~a" s)))))
+
+(define find-minimum-presses-for-joltage-using-glpk
+  (lambda (m)
+    (let ([jlist (machine-joltages m)]
+          [slist (machine-schematics m)])
+      (inexact->exact
+       (caaddr (mip-solve (assemble-objective-function-from-schematics-list slist)
+                          'min
+                          (assemble-equations-from-schematics-and-joltage-list slist jlist)
+                          (assemble-constraints-from-schematics-and-joltage-list slist jlist)
+                          (assemble-integer-list-from-schematics-list slist)))))))
+
 (define process-file
   (lambda (filename)
     (let ([lines (file->lines filename)]) (map construct-machine-from-string lines))))
@@ -97,9 +140,5 @@
   (lambda (filename) (apply + (map find-minimum-presses-for-diagram (process-file filename)))))
 
 (define part2
-  ;(lambda (filename) (apply + (map find-minimum-presses-for-joltage (process-file filename)))))
-  (lambda (filename) (apply + 
-         (for/list ((machine (process-file filename)) (i (in-naturals)))
-               (print (format "Checking machine ~a" (+ i 1))) (newline)
-               (find-minimum-presses-for-joltage machine)
-               ))))
+  (lambda (filename)
+    (apply + (map find-minimum-presses-for-joltage-using-glpk (process-file filename)))))
