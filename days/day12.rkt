@@ -30,7 +30,7 @@
 (define packages-fit-under-tree
   (lambda (package-vector tree)
     (for/sum ((num-packages (tree-num-packages-vector tree)) (package package-vector))
-             (* num-packages 7))))
+             (* num-packages (number-of-package-squares package)))))
 
 (define packages-fit-under-trees
   (lambda (filename)
